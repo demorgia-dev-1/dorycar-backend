@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rider Dashboard</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="mb-4">Rider Dashboard</h2>
+        
+        <!-- Current Ride Status -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="mb-0">Current Ride Status</h3>
+            </div>
+            <div class="card-body">
+                <p><strong>Status:</strong> <%= rideStatus %></p>
+                <p><strong>Driver Name:</strong> <%= driverName %></p>
+                <p><strong>Vehicle:</strong> <%= vehicle %></p>
+            </div>
+        </div>
+
+        <!-- Ride History -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="mb-0">Ride History</h3>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Driver</th>
+                            <th>Fare</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% rides.forEach(function(ride) { %>
+                        <tr>
+                            <td><%= ride.date %></td>
+                            <td><%= ride.from %></td>
+                            <td><%= ride.to %></td>
+                            <td><%= ride.driver %></td>
+                            <td><%= ride.fare %></td>
+                        </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Available Drivers -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">Available Drivers</h3>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    <% drivers.forEach(function(driver) { %>
+                    <div class="list-group-item">
+                        <h5><%= driver.name %></h5>
+                        <p><strong>Vehicle:</strong> <%= driver.vehicle %></p>
+                        <p><strong>Rating:</strong> <%= driver.rating %></p>
+                    </div>
+                    <% }); %>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
