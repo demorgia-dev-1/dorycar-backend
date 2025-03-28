@@ -1,37 +1,54 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
 
 const rideSchema = new mongoose.Schema({
-    from: {
-        type: String,
-        required: true
+  driver: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Driver',
+    required: true
+  },
+  startLocation: {
+    type: {
+      type: String,
+      default: 'Point'
     },
-    to: {
-        type: String,
-        required: true
+    coordinates: [Number],
+    address: String
+  },
+  endLocation: {
+    type: {
+      type: String,
+      default: 'Point'
     },
-    date: {
-        type: String,
-        required: true
-    },
-    time: {
-        type: String,
-        required: true
-    },
-    vehicleType: {
-        type: String,
-        required: true
-    },
-    driver: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
-    riders: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-    }]
+    coordinates: [Number],
+    address: String
+  },
+  departureTime: {
+    type: Date,
+    required: true
+  },
+  availableSeats: {
+    type: Number,
+    required: true,
+    min: 1
+  },
+  price: {
+    type: Number,
+    required: true
+  },
+  riders: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Rider'
+  }],
+  status: {
+    type: String,
+    enum: ['pending', 'active', 'completed', 'cancelled'],
+    default: 'pending'
+  }
+}, {
+  timestamps: true
 });
 
-const Ride = mongoose.model('Ride', rideSchema);
-module.exports = Ride;
+rideSchema.index({ "startLocation": "2dsphere" });
+rideSchema.index({ "endLocation": "2dsphere" });
+
+module.exports = mongoose.model('Ride', rideSchema);

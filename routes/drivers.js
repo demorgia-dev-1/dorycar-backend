@@ -1,19 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const driverController = require('../controllers/driverController');
-const authMiddleware = require('../middleware/authMiddleware');
+// Remove or comment this line since we're using common authMiddleware
+// const driverAuth = require('../middleware/driverAuthMiddleware');
+const { protect } = require('../middleware/authMiddleware');
 
-router.use(authMiddleware);
-
-// Driver routes
+// Public routes
 router.post('/register', driverController.registerDriver);
 router.post('/login', driverController.loginDriver);
+
+// Protected routes
+router.use(protect);
 router.get('/profile', driverController.getDriverProfile);
 router.put('/profile', driverController.updateDriverProfile);
-router.post('/rides', driverController.createRide);
-router.get('/rides', driverController.getAllRides);
-router.post('/rides/search', driverController.searchRides);
-router.post('/rides/:id/book', driverController.bookRide);
-router.post('/rides/:rideId/join', driverController.joinRide);
+router.post('/create-ride', driverController.createRide);
+router.get('/rides', driverController.getDriverRides);
 
 module.exports = router;

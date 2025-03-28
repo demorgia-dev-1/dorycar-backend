@@ -1,158 +1,92 @@
-const RiderProfile = require('../models/riderProfile');
-const User = require('../models/user');
-const Ride = require('../models/ride');
+const Rider = require('../models/Rider');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const { generateToken } = require('../utils/jwtUtils');
+const MatchingService = require('../services/matchingService');
+const RiderStatsService = require('../services/riderStatsService');
 
-// Register Rider
-exports.registerRider = async (req, res) => {
+const riderController = {
+  registerRider: async (req, res) => {
     try {
-        const { name, email, password, phone } = req.body;
+      const { name, email, password } = req.body;
+      
+      const riderExists = await Rider.findOne({ email });
+      if (riderExists) {
+        return res.status(400).json({ message: 'Rider already exists' });
+      }
 
-        // Check if user already exists
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({ message: 'User already exists' });
-        }
+      const rider = await Rider.create({
+        name,
+        email,
+        password
+      });
 
-        // Create new user with rider role
-        const newUser = new User({
-            name,
-            email,
-            password,
-            role: 'rider'
+      if (rider) {
+        res.status(201).json({
+          _id: rider._id,
+          name: rider.name,
+          email: rider.email,
+          token: generateToken(rider._id)
         });
+      }
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  },
 
-        // Hash password before saving
-        newUser.password = await bcrypt.hash(password, 10);
-        await newUser.save();
+  loginRider: async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      const rider = await Rider.findOne({ email });
 
-        // Create rider profile
-        const riderProfile = new RiderProfile({
-            user: newUser._id,
-            phone
+      if (rider && (await bcrypt.compare(password, rider.password))) {
+        res.json({
+          _id: rider._id,
+          name: rider.name,
+          email: rider.email,
+          token: generateToken(rider._id)
         });
-
-        await riderProfile.save();
-
-        res.status(201).json({ message: 'Rider registered successfully' });
+      } else {
+        res.status(401).json({ message: 'Invalid email or password' });
+      }
     } catch (error) {
-            res.status(500).json({ message: 'Error registering rider' });
+      res.status(400).json({ message: error.message });
     }
-};
+  },
 
-// Login Rider
-exports.loginRider = async (req, res) => {
+  getRiderProfile: async (req, res) => {
     try {
-        const { email, password } = req.body;
+      const rider = await Rider.findById(req.user._id).select('-password');
+      res.json(rider);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  },
 
-        // Find rider by email
-        const user = await User.findOne({ email, role: 'rider' });
-        if (!user) {
-            return res.status(404).json({ message: 'Rider not found' });
+  updateRiderProfile: async (req, res) => {
+    try {
+      const rider = await Rider.findById(req.user._id);
+      
+      if (rider) {
+        rider.name = req.body.name || rider.name;
+        rider.email = req.body.email || rider.email;
+        
+        if (req.body.password) {
+          rider.password = req.body.password;
         }
 
-        // Compare passwords
-        const isValidPassword = await bcrypt.compare(password, user.password);
-        if (!isValidPassword) {
-            return res.status(401).json({ message: 'Invalid password' });
-        }
-
-        // Generate JWT token
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-            expiresIn: '1h'
+        const updatedRider = await rider.save();
+        res.json({
+          _id: updatedRider._id,
+          name: updatedRider.name,
+          email: updatedRider.email
         });
-
-        res.status(200).json({ token });
+      } else {
+        res.status(404).json({ message: 'Rider not found' });
+      }
     } catch (error) {
-            res.status(500).json({ message: 'Error logging in rider' });
+      res.status(400).json({ message: error.message });
     }
+  }
 };
 
-// Get Rider Profile
-exports.getRiderProfile = async (req, res) => {
-    try {
-        const riderProfile = await RiderProfile.findOne({ user: req.user.userId })
-            .populate('user', '-password')
-            .populate({
-                path: 'rides',
-                populate: {
-                    path: 'rider',
-                    select: '-password'
-                }
-            });
-
-        res.status(200).json(riderProfile);
-    } catch (error) {
-            res.status(500).json({ message: 'Error fetching rider profile' });
-    }
-};
-
-// Update Rider Profile
-exports.updateRiderProfile = async (req, res) => {
-    try {
-        const riderProfile = await RiderProfile.findOneAndUpdate(
-            { user: req.user.userId },
-            { $set: req.body },
-            { new: true }
-        )
-            .populate('user', '-password')
-            .populate({
-                path: 'rides',
-                populate: {
-                    path: 'rider',
-                    select: '-password'
-                }
-            });
-
-        res.status(200).json(riderProfile);
-    } catch (error) {
-            res.status(500).json({ message: 'Error updating rider profile' });
-    }
-};
-
-// Search for Rides
-exports.searchRides = async (req, res) => {
-    try {
-        const { from, to, date } = req.body;
-
-        const rides = await Ride.find({
-            from: { $regex: from, $options: 'i' },
-            to: { $regex: to, $options: 'i' },
-            date: { $regex: date, $options: 'i' }
-        })
-            .populate('driver', '-password');
-
-        res.status(200).json(rides);
-    } catch (error) {
-            res.status(500).json({ message: 'Error searching rides' });
-    }
-};
-
-// Book a Ride
-exports.bookRide = async (req, res) => {
-    try {
-        const rideId = req.params.id;
-
-        const ride = await Ride.findById(rideId);
-
-        if (!ride) {
-            return res.status(404).json({ message: 'Ride not found' });
-        }
-
-        if (ride.riders && ride.riders.includes(req.user.userId)) {
-            return res.status(400).json({ message: 'You have already booked this ride' });
-        }
-
-        const updatedRide = await Ride.findByIdAndUpdate(
-            rideId,
-            { $addToSet: { riders: req.user.userId } },
-            { new: true }
-        )
-            .populate('driver', '-password');
-
-        res.status(200).json(updatedRide);
-    } catch (error) {
-            res.status(500).json({ message: 'Error booking ride' });
-    }
-};
+module.exports = riderController;

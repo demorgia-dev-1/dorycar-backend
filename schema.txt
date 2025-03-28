@@ -1,0 +1,128 @@
+c:\New folder\DORYCAR\new\dorycar-backend\
+├── models\
+│   ├── Driver.js
+│   ├── Rider.js
+│   ├── Ride.js
+│   ├── Rating.js
+│   └── Chat.js
+├── controllers\
+│   ├── driverController.js
+│   ├── riderController.js
+│   ├── rideController.js
+│   ├── ratingController.js
+│   └── chatController.js
+├── routes\
+│   ├── drivers.js
+│   ├── riders.js
+│   ├── rides.js
+│   ├── ratings.js
+│   └── chat.js
+├── middleware\
+│   ├── authMiddleware.js
+│   ├── driverAuthMiddleware.js
+│   └── errorMiddleware.js
+├── services\
+│   ├── matchingService.js
+│   ├── routeMatchingService.js
+│   ├── priceCalculationService.js
+│   ├── ratingService.js
+│   ├── driverStatsService.js
+│   ├── riderStatsService.js
+│   └── chatService.js
+├── config\
+│   ├── db.js
+│   └── vehicleRates.js
+├── utils\
+│   └── jwtUtils.js
+└── server.js
+
+- Rating system for rides
+- Price calculation based on distance
+- Ride scheduling and recurring rides
+-
+- Payment integration
+
+- Dynamic pricing based on demand
+- Custom rates for different vehicle types
+- Discount calculations
+- Surge pricing during special events
+- Weekly/monthly pass pricing
+
+
+c:\New folder\DORYCAR\new\dorycar-frontend\
+├── src\
+│   ├── components\
+│   │   ├── auth\
+│   │   │   ├── DriverLogin.js
+│   │   │   ├── DriverRegister.js
+│   │   │   ├── RiderLogin.js
+│   │   │   └── RiderRegister.js
+│   │   ├── driver\
+│   │   │   ├── CreateRide.js
+│   │   │   ├── DriverDashboard.js
+│   │   │   ├── DriverProfile.js
+│   │   │   └── RideHistory.js
+│   │   ├── rider\
+│   │   │   ├── SearchRides.js
+│   │   │   ├── RiderDashboard.js
+│   │   │   ├── RiderProfile.js
+│   │   │   └── BookingHistory.js
+│   │   ├── ride\
+│   │   │   ├── RideDetails.js
+│   │   │   ├── RideMap.js
+│   │   │   └── PriceCalculator.js
+│   │   ├── chat\
+│   │   │   └── ChatWindow.js
+│   │   └── common\
+│   │       ├── Navbar.js
+│   │       ├── Footer.js
+│   │       └── Rating.js
+│   ├── services\
+│   │   ├── authService.js
+│   │   ├── rideService.js
+│   │   ├── chatService.js
+│   │   └── mapService.js
+│   ├── context\
+│   │   ├── AuthContext.js
+│   │   └── RideContext.js
+│   ├── utils\
+│   │   ├── api.js
+│   │   └── helpers.js
+│   ├── assets\
+│   │   └── images\
+│   ├── styles\
+│   │   └── main.css
+│   └── App.js
+
+1. Basic Setup & Authentication:
+- Project initialization with required dependencies
+- Authentication components (Login/Register for both Driver/Rider)
+- Protected routes setup
+- Navigation and layout components
+2. Driver Features:
+- Driver profile management
+- Create/Edit ride offerings
+- View ride requests
+- Ride history and statistics
+- Vehicle management
+3. Rider Features:
+- Rider profile management
+- Search available rides
+- Book rides
+- View booking history
+- Favorite routes
+4. Ride Management:
+- Ride creation flow
+- Route visualization with maps
+- Price calculation
+- Ride matching algorithm integration
+- Real-time ride tracking
+5. Communication:
+- Chat system between driver and rider
+- Notifications
+- Rating system implementation
+6. Additional Features:
+- Payment integration
+- Advanced search filters
+- Scheduling system
+- Statistics and reports
